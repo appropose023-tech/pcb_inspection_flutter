@@ -4,15 +4,19 @@ workflows:
     max_build_duration: 60
     environment:
       flutter: stable
+
     scripts:
       - name: Create Flutter project
         script: |
+          echo "STEP 1: Creating Flutter project..."
           flutter create app
+          echo "Copying your lib folder..."
           cp -r lib app/
           if [ -d "assets" ]; then cp -r assets app/; fi
 
       - name: Overwrite pubspec.yaml
         script: |
+          echo "STEP 2: Writing pubspec.yaml..."
           cat > app/pubspec.yaml << 'EOF'
           name: pcb_inspector
           description: PCB Inspection App
@@ -35,10 +39,21 @@ workflows:
               - assets/
           EOF
 
+      - name: Run flutter pub get
+        script: |
+          echo "STEP 3: Fetching dependencies..."
+          cd app
+          flutter pub get
+
       - name: Build APK
         script: |
+          echo "STEP 4: Building APK..."
           cd app
           flutter build apk --release
 
     artifacts:
       - app/build/app/outputs/flutter-apk/app-release.apk
+
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
