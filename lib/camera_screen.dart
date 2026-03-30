@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'api_service.dart';
 import 'models.dart';
 
-class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
 
   @override
-  State<CameraPage> createState() => _CameraPageState();
+  State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraPageState extends State<CameraPage> {
+class _CameraScreenState extends State<CameraScreen> {
   CameraController? controller;
   bool processing = false;
   InspectionResult? result;
