@@ -4,19 +4,38 @@ import 'package:http/http.dart' as http;
 import 'models.dart';
 
 class ApiService {
-  final String baseUrl = "http://104.154.76.47:8000/inspect";
+  final String baseUrl = "http://104.154.76.47:8000";
 
-  Future<InspectionResult> inspectImage(File file) async {
-    final request = http.MultipartRequest("POST", Uri.parse(baseUrl));
-    request.files.add(
-      await http.MultipartFile.fromPath("file", file.path),
+  Future<InspectionResult> inspect(File file) async {
+    final uri = Uri.parse("$baseUrl/inspect");
+
+    print("📤 Sending to: $uri");
+    print("📤 File: ${file.path}");
+    print("📤 Size: ${file.lengthSync()} bytes");
+
+    final req = http.MultipartRequest("POST", uri);
+
+    // Swagger requires field name "file"
+    req.files.add(
+      await http.MultipartFile.fromPath('file', file.path),
     );
 
-    final response = await request.send();
-    final respStr = await response.stream.bytesToString();
+    final streamed = await req.send().timeout(
+      const Duration(seconds: 25),
+      onTimeout: () {
+        throw Exception("⏳ Server timed out. Check backend.");
+      },
+    );
 
-    final jsonMap = json.decode(respStr);
+    print("📥 Status: ${streamed.statusCode}");
 
-    return InspectionResult.fromJson(jsonMap);
+    final body = await streamed.stream.bytesToString();
+    print("📥 Body: $body");
+
+    if (streamed.statusCode != 200) {
+      throw Exception("❌ API Error: $body");
+    }
+
+    return InspectionResult.fromJson(jsonDecode(body));
   }
 }
