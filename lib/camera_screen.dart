@@ -42,7 +42,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final file = File(image.path);
 
     final api = ApiService();
-    final response = await api.inspectImage(file);
+    final response = await api.inspect(file);
 
     setState(() {
       result = response;
